@@ -1,5 +1,5 @@
 {
-  "appId": "com.noteapp.app",
-  "appName": "noteflow",
+  "appId": "com.noteflow.app",
+  "appName": "NoteFlow",
   "webDir": "dist"
 }
