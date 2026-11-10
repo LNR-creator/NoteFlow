@@ -18,6 +18,10 @@ import Sidebar from './components/Sidebar.jsx';
 import 'katex/dist/katex.min.css';
 import './App.css';
 
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+
 const initialMarkdown = `# Machine Learning Notes
 
 ## 1. Introduction
@@ -676,53 +680,90 @@ p {
       };
 
 
-      const worker = html2pdf()
-        .set(options)
-        .from(clone)
-        .toPdf();
+     
+const worker = html2pdf()
+  .set(options)
+  .from(clone)
+  .toPdf();
 
-      await worker.get('pdf').then((pdf) => {
-        const totalPages = pdf.internal.getNumberOfPages();
+const pdf = await worker.get('pdf');
 
-        const pageWidth = pdf.internal.pageSize.getWidth();
-        const pageHeight = pdf.internal.pageSize.getHeight();
+const totalPages = pdf.internal.getNumberOfPages();
 
-        const title = currentNote?.title || 'Untitled Note';
+const pageWidth = pdf.internal.pageSize.getWidth();
+const pageHeight = pdf.internal.pageSize.getHeight();
 
-        for (let page = 1; page <= totalPages; page++) {
-          pdf.setPage(page);
+const title = currentNote?.title || 'Untitled Note';
 
-          // Header
-          pdf.setFont('helvetica', 'bold');
-          pdf.setFontSize(9);
-          pdf.setTextColor(40, 55, 80);
+for (let page = 1; page <= totalPages; page++) {
+  pdf.setPage(page);
 
-          pdf.text(title, 12, 8, {
-            maxWidth: pageWidth - 24
-          });
+  // Header
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(9);
+  pdf.setTextColor(40, 55, 80);
 
-          pdf.setDrawColor(210, 215, 225);
-          pdf.line(12, 11, pageWidth - 12, 11);
+  pdf.text(title, 12, 8, {
+    maxWidth: pageWidth - 24
+  });
 
-          // Footer
-          pdf.line(12, pageHeight - 11, pageWidth - 12, pageHeight - 11);
+  pdf.setDrawColor(210, 215, 225);
+  pdf.line(12, 11, pageWidth - 12, 11);
 
-          pdf.setFont('helvetica', 'normal');
-          pdf.setFontSize(8);
-          pdf.setTextColor(110, 110, 110);
+  // Footer
+  pdf.line(12, pageHeight - 11, pageWidth - 12, pageHeight - 11);
 
-          pdf.text('NoteFlow', 12, pageHeight - 6);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8);
+  pdf.setTextColor(110, 110, 110);
 
-          pdf.text(
-            `Page ${page} of ${totalPages}`,
-            pageWidth - 12,
-            pageHeight - 6,
-            { align: 'right' }
-          );
-        }
-      });
+  pdf.text('NoteFlow', 12, pageHeight - 6);
 
-      await worker.save();
+  pdf.text(
+    `Page ${page} of ${totalPages}`,
+    pageWidth - 12,
+    pageHeight - 6,
+    { align: 'right' }
+  );
+}
+
+// Android: save PDF and open native sharing interface
+if (Capacitor.getPlatform() === 'android') {
+  const pdfBlob = pdf.output('blob');
+
+  const base64Data = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      const result = reader.result;
+      resolve(result.split(',')[1]);
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(pdfBlob);
+  });
+
+  const fileName = options.filename;
+
+  const file = await Filesystem.writeFile({
+    path: fileName,
+    data: base64Data,
+    directory: Directory.Cache,
+    recursive: true
+  });
+
+  await Share.share({
+    title: 'Share PDF',
+    text: 'Your NoteFlow PDF is ready.',
+    url: file.uri,
+    dialogTitle: 'Save or share your PDF'
+  });
+
+} else {
+  // Laptop/browser: retain normal PDF download
+  await worker.save();
+}
+
 
 
     } catch (error) {

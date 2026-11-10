@@ -1682,3 +1682,29 @@ body,
   color: #f1f5f9;
   border-color: #475569;
 }
+
+
+/* FIX: Markdown preview readability in dark mode */
+:root[data-theme="dark"] .preview-panel .markdown-content,
+:root[data-theme="dark"] .preview-panel .markdown-preview {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+:root[data-theme="dark"] .preview-panel .markdown-content p,
+:root[data-theme="dark"] .preview-panel .markdown-content li,
+:root[data-theme="dark"] .preview-panel .markdown-content td,
+:root[data-theme="dark"] .preview-panel .markdown-content span {
+  color: #1f2937 !important;
+}
+
+:root[data-theme="dark"] .preview-panel .markdown-content h1,
+:root[data-theme="dark"] .preview-panel .markdown-content h2,
+:root[data-theme="dark"] .preview-panel .markdown-content h3,
+:root[data-theme="dark"] .preview-panel .markdown-content h4 {
+  color: #1d4ed8 !important;
+}
+
+:root[data-theme="dark"] .preview-panel .markdown-content strong {
+  color: #1e3a8a !important;
+}

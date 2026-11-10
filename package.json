@@ -12,6 +12,8 @@
   "dependencies": {
     "@capacitor/android": "^8.6.0",
     "@capacitor/core": "^8.6.0",
+    "@capacitor/filesystem": "^8.1.5",
+    "@capacitor/share": "^8.0.3",
     "html2pdf.js": "^0.14.0",
     "katex": "^0.19.1",
     "react": "^19.3.1",
